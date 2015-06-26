@@ -1,0 +1,66 @@
+<!doctype html>
+<head>
+	<script src="/welder_assets/js/welder_widgets.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/welder_assets/css/welder_widgets.css">
+</head>
+<body>
+	<script type="text/javascript">
+		var $ = jQuery = require("jquery");
+		var h = require("hyperscript");
+		var welder = require("welder");
+		require("bootstrap");
+
+		$(document).ready( function() {
+			$("body").append(
+				h('.container',
+					h('h1','GSAF downloader'),
+					h('h4','Pulls GSAF files to the compute server'),
+					h('.container',
+						h('form#main-form', { action:'', role:'form' },
+							h('fieldset',
+								h('div.form-group',
+									h('label','URL'),
+									h('input.form-control',{name:'url'})
+								),
+								h('button.btn.btn-primary',{type:'submit'},"Submit")
+							)
+						)
+					)
+				)
+			);
+
+			welder.initWidgetsFromClasses();
+			welder.widgets.poweredBy();
+			welder.handleRunSimilar( "#main-form" );
+
+			$("#main-form").submit( function() {
+				$(this).find('fieldset').prop('disabled',true);
+				var params = welder.formToObject( this );
+
+				welder.ajax.postRun({
+					"name": "download",
+					"app_folder_name": "download",
+					"params": params,
+					"tasks": [
+						{
+							"name": "download",
+							"command": "python -u ./code/download.py",
+							"container_image": "python:2.7",
+							"mounts": {
+							    "datasets": "$DATASETS/:rw"
+							},
+							"requirements": {
+								"cpus": 1,
+								"mem": 512,
+								"disk": 512
+							}
+						}
+					]
+				});
+				return false;
+			});
+		});
+	</script>
+</body>
