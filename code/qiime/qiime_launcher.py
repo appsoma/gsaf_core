@@ -2,6 +2,12 @@ import re
 import sys
 import json
 
+sys.path.append("./code/welder_api")
+import welder_api
+
+print welder_api.expand_vars("test")
+sys.exit(0)
+
 with open( "params.json" ) as f:
     params = json.loads( f.read() )
 
